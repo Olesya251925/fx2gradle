@@ -4,7 +4,7 @@ import Exceptions.NegativeDimensionException;
 import javafx.scene.paint.Color;
 
 public class CircleShape extends Figure {
-    private double radius;
+    private final double radius;
 
     public CircleShape(double radius, Color color, double x, double y) throws NegativeDimensionException {
         super(x, y, color);

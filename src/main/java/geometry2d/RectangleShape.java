@@ -4,8 +4,8 @@ import Exceptions.NegativeDimensionException;
 import javafx.scene.paint.Color;
 
 public class RectangleShape extends Figure {
-    private double width;
-    private double height;
+    private final double width;
+    private final double height;
 
     public RectangleShape(double width, double height, Color color, double x, double y) throws NegativeDimensionException {
         super(x, y, color);
