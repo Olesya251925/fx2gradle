@@ -2,32 +2,27 @@ package geometry2d;
 
 import Exceptions.NegativeDimensionException;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle; // Импортируем класс Circle из javafx.scene.shape
 
-public class CircleShape implements Figure { // Переименовываем класс в CircleShape
-    private double radius; // Радиус окружности
-    private Circle javafxCircle; // JavaFX объект для отображения
+public class CircleShape extends Figure {
+    private double radius;
 
-    public CircleShape(double radius) throws NegativeDimensionException {
+    public CircleShape(double radius, Color color, double x, double y) throws NegativeDimensionException {
+        super(x, y, color);
         if (radius < 0) {
-            throw new NegativeDimensionException("Радиус не может быть отрицательным."); // Проверка на отрицательный радиус
+            throw new NegativeDimensionException("Radius cannot be negative");
         }
-        this.radius = radius; // Присваиваем радиус
-        this.javafxCircle = new Circle(radius); // Инициализация JavaFX объекта
-        this.javafxCircle.setFill(Color.color(Math.random(), Math.random(), Math.random())); // Установка случайного цвета
+        this.radius = radius;
     }
 
-    public Circle getShape() {
-        return javafxCircle; // Метод для получения JavaFX объекта
+    public double getRadius() {
+        return radius;
     }
 
+    // Проверяем, находится ли точка внутри окружности
     @Override
-    public double area() {
-        return Math.PI * radius * radius; // Вычисление площади окружности
-    }
-
-    @Override
-    public String toString() {
-        return "Окружность с радиусом: " + radius; // Строковое представление окружности
+    public boolean contains(double x, double y) {
+        double dx = this.x - x;
+        double dy = this.y - y;
+        return dx * dx + dy * dy <= radius * radius;
     }
 }
