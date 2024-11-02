@@ -40,8 +40,4 @@ public abstract class Figure {
     // Абстрактный метод для проверки, находится ли точка внутри фигуры
     public abstract boolean contains(double x, double y);
 
-    // Метод для перемещения фигуры на передний план
-    public void toFront() {
-        // Логика перемещения фигуры на передний план (если необходимо)
-    }
 }

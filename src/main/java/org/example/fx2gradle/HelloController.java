@@ -38,12 +38,20 @@ public class HelloController {
         }
 
         canvas.setOnMousePressed(event -> {
-            selectedFigure = getFigureAt(event.getX(), event.getY());
-            if (selectedFigure != null) {
-                // Перемещаем выбранную фигуру на передний план
-                bringToFront(selectedFigure);
-                offsetX = event.getX() - selectedFigure.getX();
-                offsetY = event.getY() - selectedFigure.getY();
+            if (event.isPrimaryButtonDown()) {
+                selectedFigure = getFigureAt(event.getX(), event.getY());
+                if (selectedFigure != null) {
+                    bringToFront(selectedFigure);
+                    offsetX = event.getX() - selectedFigure.getX();
+                    offsetY = event.getY() - selectedFigure.getY();
+                }
+            } else if (event.isSecondaryButtonDown()) {
+                Figure figure = getFigureAt(event.getX(), event.getY());
+                if (figure != null) {
+                    Color randomColor = new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1.0);
+                    figure.setColor(randomColor);
+                    redrawCanvas();
+                }
             }
         });
 
@@ -55,35 +63,29 @@ public class HelloController {
             }
         });
 
-        canvas.setOnMouseClicked(event -> {
-            if (event.isSecondaryButtonDown()) {
-                Figure figure = getFigureAt(event.getX(), event.getY());
-                if (figure != null) {
-                    figure.setColor(new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1.0));
-                    redrawCanvas();
-                }
-            }
+        canvas.setOnMouseReleased(event -> {
+            selectedFigure = null;
         });
     }
 
     private void drawShape(String shapeType) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        double x = random.nextDouble() * canvas.getWidth();
-        double y = random.nextDouble() * canvas.getHeight();
+        double x = random.nextDouble() * (canvas.getWidth() - 100); // Уменьшаем область для рисования
+        double y = random.nextDouble() * (canvas.getHeight() - 100);
         Figure figure;
         Color randomColor = new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1.0);
 
         try {
             switch (shapeType) {
                 case "Circle":
-                    double radius = 20 + random.nextDouble() * 80;
+                    double radius = 20 + random.nextDouble() * 40;
                     figure = new CircleShape(radius, randomColor, x, y);
                     gc.setFill(randomColor);
-                    gc.fillOval(x, y, radius, radius);
+                    gc.fillOval(x, y, radius * 2, radius * 2);
                     break;
                 case "Rectangle":
-                    double width = 50 + random.nextDouble() * 150;
-                    double height = 30 + random.nextDouble() * 100;
+                    double width = 40 + random.nextDouble() * 60;
+                    double height = 30 + random.nextDouble() * 50;
                     figure = new RectangleShape(width, height, randomColor, x, y);
                     gc.setFill(randomColor);
                     gc.fillRect(x, y, width, height);
@@ -119,7 +121,7 @@ public class HelloController {
         for (Figure figure : figures) {
             gc.setFill(figure.getColor());
             if (figure instanceof CircleShape circle) {
-                gc.fillOval(circle.getX(), circle.getY(), circle.getRadius(), circle.getRadius());
+                gc.fillOval(circle.getX(), circle.getY(), circle.getRadius() * 2, circle.getRadius() * 2);
             } else if (figure instanceof RectangleShape rectangle) {
                 gc.fillRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
             }

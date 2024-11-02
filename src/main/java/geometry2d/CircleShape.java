@@ -9,7 +9,7 @@ public class CircleShape extends Figure {
     public CircleShape(double radius, Color color, double x, double y) throws NegativeDimensionException {
         super(x, y, color);
         if (radius < 0) {
-            throw new NegativeDimensionException("Radius cannot be negative");
+            throw new NegativeDimensionException("Радиус не может быть отрицательным");
         }
         this.radius = radius;
     }
@@ -18,11 +18,11 @@ public class CircleShape extends Figure {
         return radius;
     }
 
-    // Проверяем, находится ли точка внутри окружности
     @Override
     public boolean contains(double x, double y) {
-        double dx = this.x - x;
-        double dy = this.y - y;
+        // Проверяем, находится ли точка (x, y) внутри круга
+        double dx = x - this.x - radius; // Смещаем центр круга
+        double dy = y - this.y - radius;
         return dx * dx + dy * dy <= radius * radius;
     }
 }
