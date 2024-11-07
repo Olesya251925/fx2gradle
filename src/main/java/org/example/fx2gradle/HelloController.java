@@ -31,6 +31,9 @@ public class HelloController {
 
     @FXML
     public void initialize() {
+        // Рисуем границу канваса
+        drawCanvasBorder();
+
         // Инициализация кнопок в контейнере
         for (Node node : buttonContainer.getChildren()) {
             if (node instanceof Button button) {
@@ -57,12 +60,37 @@ public class HelloController {
             }
         });
 
-        // Обработчик перетаскивания мыши на холсте
+        // Обработчик перетаскивания фигур
         canvas.setOnMouseDragged(event -> {
             if (selectedFigure != null) {
-                selectedFigure.setX(event.getX() - offsetX); // Обновляем координату X фигуры
-                selectedFigure.setY(event.getY() - offsetY); // Обновляем координату Y фигуры
-                redrawCanvas(); // Перерисовываем холст
+                double newX = event.getX() - offsetX;
+                double newY = event.getY() - offsetY;
+
+                // Проверка границ для прямоугольников
+                if (selectedFigure instanceof RectangleShape rectangle) {
+                    if (newX < 0) newX = 0;
+                    if (newY < 0) newY = 0;
+                    if (newX + rectangle.getWidth() > canvas.getWidth()) newX = canvas.getWidth() - rectangle.getWidth();
+                    if (newY + rectangle.getHeight() > canvas.getHeight()) newY = canvas.getHeight() - rectangle.getHeight();
+                }
+
+                // Проверка границ для кругов
+                if (selectedFigure instanceof CircleShape circle) {
+                    double radius = circle.getRadius();
+
+                    // Ограничиваем левый верхний угол круга в пределах канваса с учётом радиуса
+                    if (newX < 0) newX = 0; // Левая граница
+                    if (newY < 0) newY = 0; // Верхняя граница
+                    if (newX + 2 * radius > canvas.getWidth()) newX = canvas.getWidth() - 2 * radius; // Правая граница
+                    if (newY + 2 * radius > canvas.getHeight()) newY = canvas.getHeight() - 2 * radius; // Нижняя граница
+                }
+
+                // Устанавливаем новые координаты фигуры
+                selectedFigure.setX(newX);
+                selectedFigure.setY(newY);
+
+                // Перерисовываем холст
+                redrawCanvas();
             }
         });
 
@@ -70,7 +98,15 @@ public class HelloController {
         canvas.setOnMouseReleased(event -> selectedFigure = null); // Сбрасываем выбранную фигуру
     }
 
-    //отвечает за создание и рисование фигуры (круга или прямоугольника) на холсте с случайными параметрами.
+    // Метод для рисования границы канваса
+    private void drawCanvasBorder() {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setStroke(Color.BLACK); // Цвет границы
+        gc.setLineWidth(2); // Ширина линии границы
+        gc.strokeRect(0, 0, canvas.getWidth(), canvas.getHeight()); // Рисуем границу вокруг канваса
+    }
+
+    // Отвечает за создание и рисование фигуры (круга или прямоугольника) на холсте с случайными параметрами.
     private void drawShape(String shapeType) {
         GraphicsContext gc = canvas.getGraphicsContext2D(); // Получаем контекст рисования
         double x = random.nextDouble() * (canvas.getWidth() - 100); // Генерируем случайную координату X
@@ -97,41 +133,42 @@ public class HelloController {
                     return; // Если тип фигуры не поддерживается, выходим из метода
             }
             figures.add(figure); // Добавляем фигуру в список
+            drawCanvasBorder(); // Обновляем границу после рисования фигуры
         } catch (NegativeDimensionException e) { // Обработка исключений для негативных размеров
             e.printStackTrace();
         }
     }
 
-    //ищет фигуру, которая содержит заданные координаты, и возвращает её
+    // Метод ищет фигуру, которая содержит заданные координаты, и возвращает её
     private Figure getFigureAt(double x, double y) {
-        // Получаем фигуру по координатам
-        for (int i = figures.size() - 1; i >= 0; i--) { // Проходим в обратном порядке для правильного выбора
+        for (int i = figures.size() - 1; i >= 0; i--) {
             Figure figure = figures.get(i);
-            if (figure.contains(x, y)) { // Проверяем, содержит ли фигура точку (x, y)
-                return figure; // Возвращаем найденную фигуру
+            if (figure.contains(x, y)) {
+                return figure;
             }
         }
-        return null; // Если фигура не найдена, возвращаем null
+        return null;
     }
 
-    //метод удаляет заданную фигуру из списка фигур и добавляет её снова в конец списка, тем самым перемещая её на передний план.
+    // Метод удаляет заданную фигуру из списка фигур и добавляет её снова в конец списка, тем самым перемещая её на передний план.
     private void bringToFront(Figure figure) {
-        figures.remove(figure); // Удаляем фигуру из списка
-        figures.add(figure); // Добавляем фигуру в конец списка (на передний план)
-        redrawCanvas(); // Перерисовываем холст
+        figures.remove(figure);
+        figures.add(figure);
+        redrawCanvas();
     }
 
-    //очищает холст и заново рисует все фигуры
+    // Метод очищает холст и заново рисует все фигуры
     private void redrawCanvas() {
-        GraphicsContext gc = canvas.getGraphicsContext2D(); // Получаем контекст рисования
+        GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight()); // Очищаем холст
-        for (Figure figure : figures) { // Перебираем все фигуры
-            gc.setFill(figure.getColor()); // Устанавливаем цвет заливки фигуры
-            if (figure instanceof CircleShape circle) { // Если фигура круг
-                gc.fillOval(circle.getX(), circle.getY(), circle.getRadius() * 2, circle.getRadius() * 2); // Рисуем круг
-            } else if (figure instanceof RectangleShape rectangle) { // Если фигура прямоугольник
-                gc.fillRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight()); // Рисуем прямоугольник
+        for (Figure figure : figures) {
+            gc.setFill(figure.getColor());
+            if (figure instanceof CircleShape circle) {
+                gc.fillOval(circle.getX(), circle.getY(), circle.getRadius() * 2, circle.getRadius() * 2);
+            } else if (figure instanceof RectangleShape rectangle) {
+                gc.fillRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
             }
         }
+        drawCanvasBorder(); // Рисуем границу снова после перерисовки фигур
     }
 }
