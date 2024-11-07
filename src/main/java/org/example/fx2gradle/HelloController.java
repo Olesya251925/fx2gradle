@@ -106,7 +106,7 @@ public class HelloController {
         gc.strokeRect(0, 0, canvas.getWidth(), canvas.getHeight()); // Рисуем границу вокруг канваса
     }
 
-    // Отвечает за создание и рисование фигуры (круга или прямоугольника) на холсте с случайными параметрами.
+    // Отвечает за создание и рисование фигуры (круга или прямоугольника) на холсте со случайными параметрами.
     private void drawShape(String shapeType) {
         GraphicsContext gc = canvas.getGraphicsContext2D(); // Получаем контекст рисования
         double x = random.nextDouble() * (canvas.getWidth() - 100); // Генерируем случайную координату X
